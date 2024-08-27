@@ -30,3 +30,21 @@ exports.selectArticleByID = (article_id) => {
       return Promise.reject(err);
     });
 };
+
+exports.selectArticleComments = (article_id) => {
+  return db
+    .query(
+      `select * from comments
+      where article_id = $1
+      order by created_at desc`,
+      [article_id]
+    )
+    .then(({ rows }) => {
+      if (rows.length === 0)
+        return Promise.reject({ status: 404, msg: "not found" });
+      return rows;
+    })
+    .catch((err) => {
+      return Promise.reject(err);
+    });
+};
