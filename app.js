@@ -1,7 +1,10 @@
 const express = require("express");
-const { getTopics } = require("./controllers/topics.controllers");
 const { getAPIEndpoints } = require("./controllers/api.controller");
-const { getArticleByID } = require("./controllers/articles.controller");
+const { getTopics } = require("./controllers/topics.controllers");
+const {
+  getArticles,
+  getArticleByID,
+} = require("./controllers/articles.controller");
 const {
   ifPsqlBadRequest,
   ifPsqlItemNotFound,
@@ -10,9 +13,11 @@ const {
 
 const app = express();
 
+app.get("/api", getAPIEndpoints);
+
 app.get("/api/topics", getTopics);
 
-app.get("/api", getAPIEndpoints);
+app.get("/api/articles", getArticles);
 
 app.get("/api/articles/:article_id", getArticleByID);
 

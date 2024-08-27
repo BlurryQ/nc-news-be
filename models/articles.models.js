@@ -1,5 +1,19 @@
 const db = require("../db/connection");
 
+exports.selectArticles = () => {
+  return db
+    .query(
+      `select articles.author, articles.title, articles.article_id, articles.topic, articles.created_at, articles.votes, articles.article_img_url, count(comments.article_id) as comment_count from articles
+    left join comments on articles.article_id = comments.article_id
+    group by articles.author, articles.title, articles.article_id, articles.topic, articles.created_at, articles.votes, articles.article_img_url
+    order by articles.created_at desc
+`
+    )
+    .then(({ rows }) => {
+      return rows;
+    });
+};
+
 exports.selectArticleByID = (article_id) => {
   return db
     .query(
