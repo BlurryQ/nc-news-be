@@ -49,4 +49,30 @@ describe("Endpoint testing for NC News", () => {
         });
     });
   });
+  describe("GET /api - returns an object of endpoint objects containing information about their use", () => {
+    it("200: returns an object where each method-endpoint key contains a description key with a string value", () => {
+      return request(app)
+        .get("/api")
+        .expect(200)
+        .then(({ body }) => {
+          for (let key in body.endpoints) {
+            const endpoint = body.endpoints[key];
+            expect(endpoint).toHaveProperty("description");
+            expect(typeof endpoint.description).toBe("string");
+          }
+        });
+    });
+    it("200: returns all endpoints with correct key-value pairs", () => {
+      const endpoints = require("../endpoints.json");
+      const result = {
+        endpoints,
+      };
+      return request(app)
+        .get("/api")
+        .expect(200)
+        .then(({ body }) => {
+          expect(body).toEqual(result);
+        });
+    });
+  });
 });
