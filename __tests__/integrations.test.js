@@ -9,7 +9,7 @@ afterAll(() => db.end());
 
 describe("Endpoint testing for NC News", () => {
   describe("GET api/topics returns an array of topic objects", () => {
-    it("200: returns topics array with both keys (slug & description) having string values", () => {
+    it("200: returns all topics with both keys (slug & description) having string values", () => {
       return request(app)
         .get("/api/topics")
         .expect(200)
@@ -97,7 +97,7 @@ describe("Endpoint testing for NC News", () => {
           expect(body).toMatchObject(result);
         });
     });
-    it("400: returns 'bad request' when invalid datatype is entered as an ID", () => {
+    it("400: respond msg 'bad request' when invalid datatype is entered as an ID", () => {
       return request(app)
         .get("/api/articles/one")
         .expect(400)
@@ -105,7 +105,7 @@ describe("Endpoint testing for NC News", () => {
           expect(body.msg).toBe("bad request");
         });
     });
-    it("404: returns 'not found' when an valid ID dataype is entered but article does not exist", () => {
+    it("404: respond msg 'not found' when a valid ID datatype is entered but article does not exist", () => {
       return request(app)
         .get("/api/articles/20")
         .expect(404)
@@ -115,7 +115,7 @@ describe("Endpoint testing for NC News", () => {
     });
   });
   describe("GET /api/articles - returns an array of article objects", () => {
-    it("200: returns an array of articles, each containing details about the article (but not the article body)", () => {
+    it("200: returns all articles, each containing details about the article (but not the article body)", () => {
       return request(app)
         .get("/api/articles")
         .expect(200)
@@ -133,7 +133,7 @@ describe("Endpoint testing for NC News", () => {
           });
         });
     });
-    it("200: returns an arary of all articles (total 13)", () => {
+    it("200: returns all articles (total 13)", () => {
       return request(app)
         .get("/api/articles")
         .expect(200)
@@ -149,6 +149,57 @@ describe("Endpoint testing for NC News", () => {
           expect(body.articles).toBeSortedBy("created_at", {
             descending: true,
           });
+        });
+    });
+  });
+  describe("GET /api/articles/:article_id/comments - returns an array of comments for the specified article ID", () => {
+    it("200: returns all comment objects for the specified article, each containing details about the comment", () => {
+      return request(app)
+        .get("/api/articles/3/comments")
+        .expect(200)
+        .then(({ body }) => {
+          body.comments.forEach((comment) => {
+            expect(comment).toHaveProperty("comment_id");
+            expect(comment).toHaveProperty("votes");
+            expect(comment).toHaveProperty("created_at");
+            expect(comment).toHaveProperty("author");
+            expect(comment).toHaveProperty("body");
+            expect(comment).toHaveProperty("article_id");
+          });
+        });
+    });
+    it("200: returns the correct amount of comments (total 11)", () => {
+      return request(app)
+        .get("/api/articles/1/comments")
+        .expect(200)
+        .then(({ body }) => {
+          expect(body.comments.length).toBe(11);
+        });
+    });
+    it("200: returns comments sorted by creation date in descending order (most recent first)", () => {
+      return request(app)
+        .get("/api/articles/1/comments")
+        .expect(200)
+        .then(({ body }) => {
+          expect(body.comments).toBeSortedBy("created_at", {
+            descending: true,
+          });
+        });
+    });
+    it("400: respond msg 'bad request' when invalid datatype is entered as the article ID", () => {
+      return request(app)
+        .get("/api/articles/one/comments")
+        .expect(400)
+        .then(({ body }) => {
+          expect(body.msg).toBe("bad request");
+        });
+    });
+    it("404: respond msg 'not found' when a valid article ID datatype is entered, but article does not exist or contain any comments", () => {
+      return request(app)
+        .get("/api/articles/7/comments")
+        .expect(404)
+        .then(({ body }) => {
+          expect(body.msg).toBe("not found");
         });
     });
   });

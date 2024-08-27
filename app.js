@@ -4,6 +4,7 @@ const { getTopics } = require("./controllers/topics.controllers");
 const {
   getArticles,
   getArticleByID,
+  getArticleComments,
 } = require("./controllers/articles.controller");
 const {
   ifPsqlBadRequest,
@@ -20,6 +21,8 @@ app.get("/api/topics", getTopics);
 app.get("/api/articles", getArticles);
 
 app.get("/api/articles/:article_id", getArticleByID);
+
+app.get("/api/articles/:article_id/comments", getArticleComments);
 
 app.use(ifPsqlBadRequest);
 
