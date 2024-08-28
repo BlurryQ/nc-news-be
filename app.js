@@ -1,18 +1,17 @@
-const express = require("express");
-const { getAPIEndpoints } = require("./controllers/api.controller");
-const { getTopics } = require("./controllers/topics.controllers");
 const {
+  getAPIEndpoints,
+  getTopics,
   getArticles,
   getArticleByID,
   getArticleComments,
   postArticleComment,
   patchArticleVoteCount,
-} = require("./controllers/articles.controller");
-const {
+  removeCommentByID,
   ifPsqlBadRequest,
   ifPsqlItemNotFound,
   internalServerError,
-} = require("./controllers/errors.controller");
+} = require("./controllers/index");
+const express = require("express");
 
 const app = express();
 app.use(express.json());
@@ -30,6 +29,8 @@ app.get("/api/articles/:article_id/comments", getArticleComments);
 app.post("/api/articles/:article_id/comments", postArticleComment);
 
 app.patch("/api/articles/:article_id", patchArticleVoteCount);
+
+app.delete("/api/comments/:comment_id", removeCommentByID);
 
 app.use(ifPsqlBadRequest);
 

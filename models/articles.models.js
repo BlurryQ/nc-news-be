@@ -26,8 +26,7 @@ exports.selectArticleByID = (article_id) => {
       if (rows.length === 0)
         return Promise.reject({ status: 404, msg: "not found" });
       return rows[0];
-    })
-    .catch((err) => Promise.reject(err));
+    });
 };
 
 exports.selectArticleComments = (article_id) => {
@@ -42,8 +41,7 @@ exports.selectArticleComments = (article_id) => {
       if (rows.length === 0)
         return Promise.reject({ status: 404, msg: "not found" });
       return rows;
-    })
-    .catch((err) => Promise.reject(err));
+    });
 };
 
 exports.insertArticleComment = (article_id, username, comment) => {
@@ -58,12 +56,9 @@ exports.insertArticleComment = (article_id, username, comment) => {
     returning *`,
     [comment, username, article_id, 0]
   );
-  return db
-    .query(formattedQuery)
-    .then(({ rows }) => {
-      return rows[0];
-    })
-    .catch((err) => Promise.reject(err));
+  return db.query(formattedQuery).then(({ rows }) => {
+    return rows[0];
+  });
 };
 
 exports.updateArticleVoteCount = (articleID, votesAdjust) => {
@@ -77,6 +72,5 @@ exports.updateArticleVoteCount = (articleID, votesAdjust) => {
     )
     .then(({ rows }) => {
       return rows[0];
-    })
-    .catch((err) => Promise.reject(err));
+    });
 };
