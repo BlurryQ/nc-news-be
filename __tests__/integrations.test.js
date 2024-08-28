@@ -97,7 +97,7 @@ describe("Endpoint testing for NC News", () => {
           expect(body).toMatchObject(result);
         });
     });
-    it("400: respond msg 'bad request' when invalid datatype is entered as an ID", () => {
+    it("400: responds with 'bad request' when invalid datatype is entered as an ID", () => {
       return request(app)
         .get("/api/articles/one")
         .expect(400)
@@ -105,7 +105,7 @@ describe("Endpoint testing for NC News", () => {
           expect(body.msg).toBe("bad request");
         });
     });
-    it("404: respond msg 'not found' when a valid ID datatype is entered but article does not exist", () => {
+    it("404: responds with 'not found' when a valid ID datatype is entered but article does not exist", () => {
       return request(app)
         .get("/api/articles/20")
         .expect(404)
@@ -186,7 +186,7 @@ describe("Endpoint testing for NC News", () => {
           });
         });
     });
-    it("400: respond msg 'bad request' when invalid datatype is entered as the article ID", () => {
+    it("400: responds with 'bad request' when invalid datatype is entered as the article ID", () => {
       return request(app)
         .get("/api/articles/one/comments")
         .expect(400)
@@ -194,9 +194,81 @@ describe("Endpoint testing for NC News", () => {
           expect(body.msg).toBe("bad request");
         });
     });
-    it("404: respond msg 'not found' when a valid article ID datatype is entered, but article does not exist or contain any comments", () => {
+    it("404: responds with 'not found' when a valid article ID datatype is entered, but article does not exist or contain any comments", () => {
       return request(app)
         .get("/api/articles/7/comments")
+        .expect(404)
+        .then(({ body }) => {
+          expect(body.msg).toBe("not found");
+        });
+    });
+  });
+  describe("POST /api/articles/:article_id/comments - posts a comment (an object with username and body keys) and returns the posted comment", () => {
+    it("200: successfully posts a comment to endpoint and recieves comment object back", () => {
+      return request(app)
+        .post("/api/articles/7/comments")
+        .send({ username: "icellusedkars", body: "comment" })
+        .expect(200)
+        .then(({ body }) => {
+          expect(body.comment).toHaveProperty("created_at");
+          expect(body.comment).toMatchObject({
+            article_id: 7,
+            author: "icellusedkars",
+            body: "comment",
+            comment_id: 19,
+            votes: 0,
+          });
+          return body.comment;
+        })
+        .then((returnedComment) => {
+          return request(app)
+            .get("/api/articles/7/comments")
+            .expect(200)
+            .then(({ body }) => {
+              expect(body.comments).toEqual([returnedComment]);
+            });
+        });
+    });
+    it("400: responds with 'bad request' when article ID has invalid datatype", () => {
+      return request(app)
+        .post("/api/articles/one/comments")
+        .send({ username: "icellusedkars", body: "comment" })
+        .expect(400)
+        .then(({ body }) => {
+          expect(body.msg).toBe("bad request");
+        });
+    });
+    it("400: responds with 'bad request' when username is invalid", () => {
+      return request(app)
+        .post("/api/articles/5/comments")
+        .send({ username: "jazz", body: "comment" })
+        .expect(400)
+        .then(({ body }) => {
+          expect(body.msg).toBe("bad request");
+        });
+    });
+    it("400: responds with 'bad request' when comment body is invalid datatype", () => {
+      return request(app)
+        .post("/api/articles/5/comments")
+        .send({ username: "icellusedkars", body: [1, 2] })
+        .expect(400)
+        .then(({ body }) => {
+          expect(body.msg).toBe("bad request");
+        })
+        .then(() => {
+          return request(app)
+            .post("/api/articles/5/comments")
+            .send({ username: "icellusedkars", body: { a: 1, b: 2 } })
+            .expect(400)
+            .then(({ body }) => {
+              expect(body.msg).toBe("bad request");
+            });
+        });
+    });
+    it("404: responds with 'not found' when article ID is valid, but article does not exist", () => {
+      return request(app)
+        .post("/api/articles/888/comments")
+        .send({ username: "icellusedkars", body: "comment" })
         .expect(404)
         .then(({ body }) => {
           expect(body.msg).toBe("not found");

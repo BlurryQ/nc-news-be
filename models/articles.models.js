@@ -1,4 +1,5 @@
 const db = require("../db/connection");
+const format = require("pg-format");
 
 exports.selectArticles = () => {
   return db
@@ -43,6 +44,28 @@ exports.selectArticleComments = (article_id) => {
       if (rows.length === 0)
         return Promise.reject({ status: 404, msg: "not found" });
       return rows;
+    })
+    .catch((err) => {
+      return Promise.reject(err);
+    });
+};
+
+exports.insertArticleComment = (article_id, username, comment) => {
+  const formattedQuery = format(
+    `insert into comments (
+    body,
+    author, 
+    article_id, 
+    votes)
+    values
+    (%L)
+    returning *`,
+    [comment, username, article_id, 0]
+  );
+  return db
+    .query(formattedQuery)
+    .then(({ rows }) => {
+      return rows[0];
     })
     .catch((err) => {
       return Promise.reject(err);

@@ -51,5 +51,21 @@
       "votes": 0,
       "created_at": "2020-11-03T21:00:00.000Z"
     }
+  },
+  "POST /api/articles/:article_id/comments": {
+    "description": "posts a comment on the selected article and returns the posted comment. Must use a username that already exists and body must be a string",
+    "examplePost": {
+      "username": "icellusedkars",
+      "body": "comment"
+    },
+    "exampleResponse": {
+      "comment": {
+        "article_id": 7,
+        "author": "icellusedkars",
+        "body": "comment",
+        "comment_id": 19,
+        "votes": 0
+      }
+    }
   }
 }
