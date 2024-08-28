@@ -203,7 +203,7 @@ describe("Endpoint testing for NC News", () => {
         });
     });
   });
-  describe("POST /api/articles/:article_id/comments - posts a comment (an object with username and body keys) and returns the posted comment", () => {
+  describe("POST /api/articles/:article_id/comments - posts a comment (via an object with username and body keys) and returns the posted comment", () => {
     it("200: successfully posts a comment to endpoint and recieves comment object back", () => {
       return request(app)
         .post("/api/articles/7/comments")
@@ -272,6 +272,80 @@ describe("Endpoint testing for NC News", () => {
         .expect(404)
         .then(({ body }) => {
           expect(body.msg).toBe("not found");
+        });
+    });
+  });
+
+  describe("PATCH /api/articles/:article_id - updates an articles vote count (via an object with inc_votes key) and returns the updated article", () => {
+    it("200: successfully increases the article vote count and recieves article object back", () => {
+      const updatedArticle = {
+        article: {
+          article_id: 1,
+          title: "Living in the shadow of a great man",
+          topic: "mitch",
+          author: "butter_bridge",
+          body: "I find this existence challenging",
+          created_at: "2020-07-09T20:11:00.000Z",
+          votes: 101,
+          article_img_url:
+            "https://images.pexels.com/photos/158651/news-newsletter-newspaper-information-158651.jpeg?w=700&h=700",
+        },
+      };
+      return request(app)
+        .patch("/api/articles/1")
+        .send({ inc_votes: 1 })
+        .expect(200)
+        .then(({ body }) => {
+          expect(body).toEqual(updatedArticle);
+        });
+    });
+    it("200: successfully decreases the article vote count and recieves article object back", () => {
+      const updatedArticle = {
+        article: {
+          article_id: 1,
+          title: "Living in the shadow of a great man",
+          topic: "mitch",
+          author: "butter_bridge",
+          body: "I find this existence challenging",
+          created_at: "2020-07-09T20:11:00.000Z",
+          votes: 10,
+          article_img_url:
+            "https://images.pexels.com/photos/158651/news-newsletter-newspaper-information-158651.jpeg?w=700&h=700",
+        },
+      };
+      return request(app)
+        .patch("/api/articles/1")
+        .send({ inc_votes: -90 })
+        .expect(200)
+        .then(({ body }) => {
+          expect(body).toEqual(updatedArticle);
+        });
+    });
+    it("400: responds with 'bad request' when article ID has invalid datatype", () => {
+      return request(app)
+        .patch("/api/articles/one")
+        .send({ inc_votes: 1 })
+        .expect(400)
+        .then(({ body }) => {
+          expect(body.msg).toEqual("bad request");
+        });
+    });
+    it("400: responds with 'bad request' when inc_votes is invalid datatype", () => {
+      return request(app)
+        .patch("/api/articles/1")
+        .send({ inc_votes: "ten" })
+        .expect(400)
+        .then(({ body }) => {
+          expect(body.msg).toEqual("bad request");
+        });
+    });
+    it("404: responds with 'not found' when article ID is valid, but article does not exist", () => {
+      return request(app)
+        .patch("/api/articles/200")
+        .send({ inc_votes: 100 })
+        .expect(404)
+        .then(({ body }) => {
+          expect(body.msg).toEqual("not found");
         });
     });
   });

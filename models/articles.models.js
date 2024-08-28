@@ -27,9 +27,7 @@ exports.selectArticleByID = (article_id) => {
         return Promise.reject({ status: 404, msg: "not found" });
       return rows[0];
     })
-    .catch((err) => {
-      return Promise.reject(err);
-    });
+    .catch((err) => Promise.reject(err));
 };
 
 exports.selectArticleComments = (article_id) => {
@@ -45,9 +43,7 @@ exports.selectArticleComments = (article_id) => {
         return Promise.reject({ status: 404, msg: "not found" });
       return rows;
     })
-    .catch((err) => {
-      return Promise.reject(err);
-    });
+    .catch((err) => Promise.reject(err));
 };
 
 exports.insertArticleComment = (article_id, username, comment) => {
@@ -67,7 +63,20 @@ exports.insertArticleComment = (article_id, username, comment) => {
     .then(({ rows }) => {
       return rows[0];
     })
-    .catch((err) => {
-      return Promise.reject(err);
-    });
+    .catch((err) => Promise.reject(err));
+};
+
+exports.updateArticleVoteCount = (articleID, votesAdjust) => {
+  return db
+    .query(
+      `update articles
+        set votes = votes + $1
+        where article_id = $2
+        returning *`,
+      [votesAdjust, articleID]
+    )
+    .then(({ rows }) => {
+      return rows[0];
+    })
+    .catch((err) => Promise.reject(err));
 };
