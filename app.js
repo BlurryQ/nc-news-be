@@ -5,6 +5,7 @@ const {
   getArticles,
   getArticleByID,
   getArticleComments,
+  postArticleComment,
 } = require("./controllers/articles.controller");
 const {
   ifPsqlBadRequest,
@@ -13,6 +14,7 @@ const {
 } = require("./controllers/errors.controller");
 
 const app = express();
+app.use(express.json());
 
 app.get("/api", getAPIEndpoints);
 
@@ -23,6 +25,8 @@ app.get("/api/articles", getArticles);
 app.get("/api/articles/:article_id", getArticleByID);
 
 app.get("/api/articles/:article_id/comments", getArticleComments);
+
+app.post("/api/articles/:article_id/comments", postArticleComment);
 
 app.use(ifPsqlBadRequest);
 
