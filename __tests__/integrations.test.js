@@ -49,6 +49,7 @@ describe("Endpoint testing for NC News", () => {
         });
     });
   });
+
   describe("GET /api - returns an object of endpoint objects containing information about their use", () => {
     it("200: returns an object where each method-endpoint key contains a description key with a string value", () => {
       return request(app)
@@ -75,6 +76,7 @@ describe("Endpoint testing for NC News", () => {
         });
     });
   });
+
   describe("GET /api/articles/:article_id - returns an article object for the specified article ID", () => {
     it("200: returns the article object containing all properties of the specified article", () => {
       return request(app)
@@ -114,6 +116,7 @@ describe("Endpoint testing for NC News", () => {
         });
     });
   });
+
   describe("GET /api/articles - returns an array of article objects", () => {
     it("200: returns all articles, each containing details about the article (but not the article body)", () => {
       return request(app)
@@ -152,6 +155,7 @@ describe("Endpoint testing for NC News", () => {
         });
     });
   });
+
   describe("GET /api/articles/:article_id/comments - returns an array of comments for the specified article ID", () => {
     it("200: returns all comment objects for the specified article, each containing details about the comment", () => {
       return request(app)
@@ -203,6 +207,7 @@ describe("Endpoint testing for NC News", () => {
         });
     });
   });
+
   describe("POST /api/articles/:article_id/comments - posts a comment (via an object with username and body keys) and returns the posted comment", () => {
     it("200: successfully posts a comment to endpoint and recieves comment object back", () => {
       return request(app)
@@ -276,7 +281,7 @@ describe("Endpoint testing for NC News", () => {
     });
   });
 
-  describe("PATCH /api/articles/:article_id - updates an articles vote count (via an object with inc_votes key) and returns the updated article", () => {
+  describe("PATCH /api/articles/:article_id - adjusts the specified articles vote count (via an object with inc_votes key) and returns the updated article", () => {
     it("200: successfully increases the article vote count and recieves article object back", () => {
       const updatedArticle = {
         article: {
@@ -327,7 +332,7 @@ describe("Endpoint testing for NC News", () => {
         .send({ inc_votes: 1 })
         .expect(400)
         .then(({ body }) => {
-          expect(body.msg).toEqual("bad request");
+          expect(body.msg).toBe("bad request");
         });
     });
     it("400: responds with 'bad request' when inc_votes is invalid datatype", () => {
@@ -336,7 +341,7 @@ describe("Endpoint testing for NC News", () => {
         .send({ inc_votes: "ten" })
         .expect(400)
         .then(({ body }) => {
-          expect(body.msg).toEqual("bad request");
+          expect(body.msg).toBe("bad request");
         });
     });
     it("404: responds with 'not found' when article ID is valid, but article does not exist", () => {
@@ -345,7 +350,39 @@ describe("Endpoint testing for NC News", () => {
         .send({ inc_votes: 100 })
         .expect(404)
         .then(({ body }) => {
-          expect(body.msg).toEqual("not found");
+          expect(body.msg).toBe("not found");
+        });
+    });
+  });
+
+  describe("DELETE /api/comments/:comment_id - deletes the specified comment", () => {
+    it("204: successfully deletes the specified comment", () => {
+      return request(app)
+        .delete("/api/comments/10")
+        .expect(204)
+        .then(() => {
+          return request(app)
+            .get("/api/articles/3/comments")
+            .expect(200)
+            .then(({ body }) => {
+              expect(body.comments.length).toBe(1);
+            });
+        });
+    });
+    it("400: responds with 'bad request' when comment ID has invalid datatype", () => {
+      return request(app)
+        .delete("/api/comments/ten")
+        .expect(400)
+        .then(({ body }) => {
+          expect(body.msg).toBe("bad request");
+        });
+    });
+    it("404: responds with 'not found' when comment ID is valid, but comment does not exist", () => {
+      return request(app)
+        .delete("/api/comments/123")
+        .expect(404)
+        .then(({ body }) => {
+          expect(body.msg).toBe("not found");
         });
     });
   });
