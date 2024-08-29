@@ -13,10 +13,7 @@ exports.getArticles = (request, response, next) => {
     .then((articles) => {
       response.status(200).send({ articles });
     })
-    .catch((err) => {
-      console.log(err);
-      next(err);
-    });
+    .catch((err) => next(err));
 };
 
 exports.getArticleByID = (request, response, next) => {
