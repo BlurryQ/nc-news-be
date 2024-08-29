@@ -24,8 +24,12 @@ exports.getArticleByID = (request, response, next) => {
 
 exports.getArticleComments = (request, response, next) => {
   const { article_id } = request.params;
-  selectArticleComments(article_id)
-    .then((comments) => {
+  const unresolvedPromises = [
+    checkIDExists("articles", "article_id", article_id),
+    selectArticleComments(article_id),
+  ];
+  Promise.all(unresolvedPromises)
+    .then(([exists, comments]) => {
       response.status(200).send({ comments });
     })
     .catch((err) => next(err));
