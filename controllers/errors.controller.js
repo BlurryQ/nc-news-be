@@ -1,5 +1,4 @@
 exports.ifPsqlBadRequest = (err, request, response, next) => {
-  console.log(err);
   if (err.code === "22P02" || err.code === "42703")
     response.status(400).send({ msg: "bad request" });
   next(err);
