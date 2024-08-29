@@ -154,6 +154,48 @@ describe("Endpoint testing for NC News", () => {
           });
         });
     });
+    it("200: returns articles sorted by votes in descending order", () => {
+      return request(app)
+        .get("/api/articles?sort_by=votes")
+        .expect(200)
+        .then(({ body }) => {
+          expect(body.articles).toBeSortedBy("votes", {
+            descending: true,
+          });
+        });
+    });
+    it("200: returns articles sorted by topic in ascending order", () => {
+      return request(app)
+        .get("/api/articles?sort_by=topic&order=asc")
+        .expect(200)
+        .then(({ body }) => {
+          expect(body.articles).toBeSortedBy("topic");
+        });
+    });
+    it("200: returns articles sorted by title in ascending order, ignoring case sensitivity", () => {
+      return request(app)
+        .get("/api/articles?sort_by=title&order=aSc")
+        .expect(200)
+        .then(({ body }) => {
+          expect(body.articles).toBeSortedBy("title");
+        });
+    });
+    it("400: responds with 'bad request' when sort is invalid or doesn't exist", () => {
+      return request(app)
+        .get("/api/articles?sort_by=bod")
+        .expect(400)
+        .then(({ body }) => {
+          expect(body.msg).toBe("bad request");
+        });
+    });
+    it("400: responds with 'bad request' when order is invalid or doesn't exist", () => {
+      return request(app)
+        .get("/api/articles?sort_by=title&order=5")
+        .expect(400)
+        .then(({ body }) => {
+          expect(body.msg).toBe("bad request");
+        });
+    });
   });
 
   describe("GET /api/articles/:article_id/comments - returns an array of comments for the specified article ID", () => {
@@ -278,7 +320,7 @@ describe("Endpoint testing for NC News", () => {
           expect(body.msg).toBe("not found");
         });
     });
-    it.only("404: responds with 'not found' when username is invalid", () => {
+    it("404: responds with 'not found' when username is invalid", () => {
       return request(app)
         .post("/api/articles/5/comments")
         .send({ username: "jazz", body: "comment" })
