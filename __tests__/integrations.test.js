@@ -8,7 +8,7 @@ beforeEach(() => seed(data));
 afterAll(() => db.end());
 
 describe("Endpoint testing for NC News", () => {
-  describe("GET api/topics returns an array of topic objects", () => {
+  describe("GET api/topics - returns an array of topic objects", () => {
     it("200: returns all topics with both keys (slug & description) having string values", () => {
       return request(app)
         .get("/api/topics")
@@ -180,6 +180,14 @@ describe("Endpoint testing for NC News", () => {
           expect(body.comments.length).toBe(11);
         });
     });
+    it("200: returns empty array if article exists but no comments are present", () => {
+      return request(app)
+        .get("/api/articles/2/comments")
+        .expect(200)
+        .then(({ body }) => {
+          expect(body.comments).toEqual([]);
+        });
+    });
     it("200: returns comments sorted by creation date in descending order (most recent first)", () => {
       return request(app)
         .get("/api/articles/1/comments")
@@ -198,9 +206,9 @@ describe("Endpoint testing for NC News", () => {
           expect(body.msg).toBe("bad request");
         });
     });
-    it("404: responds with 'not found' when a valid article ID datatype is entered, but article does not exist or contain any comments", () => {
+    it("404: responds with 'not found' when a valid article ID datatype is entered, but article does not exist", () => {
       return request(app)
-        .get("/api/articles/7/comments")
+        .get("/api/articles/70/comments")
         .expect(404)
         .then(({ body }) => {
           expect(body.msg).toBe("not found");
@@ -383,6 +391,30 @@ describe("Endpoint testing for NC News", () => {
         .expect(404)
         .then(({ body }) => {
           expect(body.msg).toBe("not found");
+        });
+    });
+  });
+
+  describe("GET /api/users - returns an array of user objects", () => {
+    it("200: returns all users (total 4), each object containing the users username, name and avatar_url", () => {
+      return request(app)
+        .get("/api/users")
+        .expect(200)
+        .then(({ body }) => {
+          expect(body.users.length).toBe(4);
+          body.users.forEach((user) => {
+            expect(user).toHaveProperty("username");
+            expect(user).toHaveProperty("name");
+            expect(user).toHaveProperty("avatar_url");
+          });
+        });
+    });
+    it("200: returns all users in alphabetical order by username", () => {
+      return request(app)
+        .get("/api/users")
+        .expect(200)
+        .then(({ body }) => {
+          expect(body.users).toBeSortedBy("username");
         });
     });
   });
