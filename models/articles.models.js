@@ -1,11 +1,21 @@
 const db = require("../db/connection");
 const format = require("pg-format");
 
-exports.selectArticles = (sort_by = "created_at", order = "desc") => {
-  let formattedQuery = format(
-    `select articles.author, articles.title, articles.article_id, articles.topic, articles.created_at, articles.votes, articles.article_img_url, count(comments.article_id) as comment_count from articles
+exports.selectArticles = (sort_by = "created_at", order = "desc", topic) => {
+  let formattedQuery = `select articles.author, articles.title, articles.article_id, articles.topic, articles.created_at, articles.votes, articles.article_img_url, count(comments.article_id) as comment_count from articles
   left join comments on articles.article_id = comments.article_id
-  group by articles.author, articles.title, articles.article_id, articles.topic, articles.created_at, articles.votes, articles.article_img_url
+  `;
+
+  const parameterArr = [];
+  if (topic) {
+    formattedQuery += `where articles.topic = $1
+  `;
+    parameterArr.push(topic);
+  }
+
+  formattedQuery = format(
+    formattedQuery +
+      `group by articles.author, articles.title, articles.article_id, articles.topic, articles.created_at, articles.votes, articles.article_img_url
   order by %I `,
     sort_by
   );
@@ -18,7 +28,7 @@ exports.selectArticles = (sort_by = "created_at", order = "desc") => {
 
   formattedQuery += order;
 
-  return db.query(formattedQuery).then(({ rows }) => {
+  return db.query(formattedQuery, parameterArr).then(({ rows }) => {
     return rows;
   });
 };
@@ -33,8 +43,6 @@ exports.selectArticleByID = (article_id) => {
       [article_id]
     )
     .then(({ rows }) => {
-      if (rows.length === 0)
-        return Promise.reject({ status: 404, msg: "not found" });
       return rows[0];
     });
 };

@@ -8,6 +8,57 @@ beforeEach(() => seed(data));
 afterAll(() => db.end());
 
 describe("Endpoint testing for NC News", () => {
+  describe("GET /api - returns an object of endpoint objects containing information about their use", () => {
+    it("200: returns an object where each method-endpoint key contains a description key with a string value", () => {
+      return request(app)
+        .get("/api")
+        .expect(200)
+        .then(({ body }) => {
+          for (let key in body.endpoints) {
+            const endpoint = body.endpoints[key];
+            expect(endpoint).toHaveProperty("description");
+            expect(typeof endpoint.description).toBe("string");
+          }
+        });
+    });
+    it("200: returns all endpoints with correct key-value pairs", () => {
+      const endpoints = require("../endpoints.json");
+      const result = {
+        endpoints,
+      };
+      return request(app)
+        .get("/api")
+        .expect(200)
+        .then(({ body }) => {
+          expect(body).toMatchObject(result);
+        });
+    });
+  });
+
+  describe("GET /api/users - returns an array of user objects", () => {
+    it("200: returns all users (total 4), each object containing the users username, name and avatar_url", () => {
+      return request(app)
+        .get("/api/users")
+        .expect(200)
+        .then(({ body }) => {
+          expect(body.users.length).toBe(4);
+          body.users.forEach((user) => {
+            expect(user).toHaveProperty("username");
+            expect(user).toHaveProperty("name");
+            expect(user).toHaveProperty("avatar_url");
+          });
+        });
+    });
+    it("200: returns all users in alphabetical order by username", () => {
+      return request(app)
+        .get("/api/users")
+        .expect(200)
+        .then(({ body }) => {
+          expect(body.users).toBeSortedBy("username");
+        });
+    });
+  });
+
   describe("GET api/topics - returns an array of topic objects", () => {
     it("200: returns all topics with both keys (slug & description) having string values", () => {
       return request(app)
@@ -46,89 +97,6 @@ describe("Endpoint testing for NC News", () => {
         .expect(200)
         .then(({ body }) => {
           expect(body).toMatchObject(result);
-        });
-    });
-  });
-
-  describe("GET /api - returns an object of endpoint objects containing information about their use", () => {
-    it("200: returns an object where each method-endpoint key contains a description key with a string value", () => {
-      return request(app)
-        .get("/api")
-        .expect(200)
-        .then(({ body }) => {
-          for (let key in body.endpoints) {
-            const endpoint = body.endpoints[key];
-            expect(endpoint).toHaveProperty("description");
-            expect(typeof endpoint.description).toBe("string");
-          }
-        });
-    });
-    it("200: returns all endpoints with correct key-value pairs", () => {
-      const endpoints = require("../endpoints.json");
-      const result = {
-        endpoints,
-      };
-      return request(app)
-        .get("/api")
-        .expect(200)
-        .then(({ body }) => {
-          expect(body).toMatchObject(result);
-        });
-    });
-  });
-
-  describe("GET /api/articles/:article_id - returns an article object for the specified article ID", () => {
-    it("200: returns the article object containing all properties of the specified article", () => {
-      return request(app)
-        .get("/api/articles/1")
-        .expect(200)
-        .then(({ body }) => {
-          const result = {
-            article: {
-              article_id: 1,
-              title: "Living in the shadow of a great man",
-              topic: "mitch",
-              author: "butter_bridge",
-              body: "I find this existence challenging",
-              created_at: "2020-07-09T20:11:00.000Z",
-              votes: 100,
-              article_img_url:
-                "https://images.pexels.com/photos/158651/news-newsletter-newspaper-information-158651.jpeg?w=700&h=700",
-            },
-          };
-          expect(body).toMatchObject(result);
-        });
-    });
-    it("200: returns article contains a count of articles comments", () => {
-      return request(app)
-        .get("/api/articles/1")
-        .expect(200)
-        .then(({ body }) => {
-          expect(body.article.comment_count).toBe("11");
-        });
-    });
-    it("200: returns article contains a count of articles comments when article has no comments", () => {
-      return request(app)
-        .get("/api/articles/2")
-        .expect(200)
-        .then(({ body }) => {
-          expect(body.article.comment_count).toBe("0");
-        });
-    });
-    it("400: responds with 'bad request' when invalid datatype is entered as an ID", () => {
-      return request(app)
-        .get("/api/articles/one")
-        .expect(400)
-        .then(({ body }) => {
-          expect(body.msg).toBe("bad request");
-        });
-    });
-    it("404: responds with 'not found' when a valid ID datatype is entered but article does not exist", () => {
-      return request(app)
-        .get("/api/articles/20")
-        .expect(404)
-        .then(({ body }) => {
-          expect(body.msg).toBe("not found");
         });
     });
   });
@@ -196,12 +164,12 @@ describe("Endpoint testing for NC News", () => {
           expect(body.articles).toBeSortedBy("title");
         });
     });
-    it("400: responds with 'bad request' when sort is invalid or doesn't exist", () => {
+    it("200: returns articles filtered by topic", () => {
       return request(app)
-        .get("/api/articles?sort_by=bod")
-        .expect(400)
+        .get("/api/articles?topic=cats")
+        .expect(200)
         .then(({ body }) => {
-          expect(body.msg).toBe("bad request");
+          expect(body.articles.length).toBe(1);
         });
     });
     it("400: responds with 'bad request' when order is invalid or doesn't exist", () => {
@@ -210,6 +178,78 @@ describe("Endpoint testing for NC News", () => {
         .expect(400)
         .then(({ body }) => {
           expect(body.msg).toBe("bad request");
+        });
+    });
+    it("404: responds with 'bad request' when sort is invalid or doesn't exist", () => {
+      return request(app)
+        .get("/api/articles?sort_by=bod")
+        .expect(404)
+        .then(({ body }) => {
+          expect(body.msg).toBe("not found");
+        });
+    });
+    it("404: responds with 'not found' when topic is invalid or doesn't exist", () => {
+      return request(app)
+        .get("/api/articles?topic=title")
+        .expect(404)
+        .then(({ body }) => {
+          expect(body.msg).toBe("not found");
+        });
+    });
+  });
+
+  describe("GET /api/articles/:article_id - returns an article object for the specified article ID", () => {
+    it("200: returns the article object containing all properties of the specified article", () => {
+      return request(app)
+        .get("/api/articles/1")
+        .expect(200)
+        .then(({ body }) => {
+          const result = {
+            article: {
+              article_id: 1,
+              title: "Living in the shadow of a great man",
+              topic: "mitch",
+              author: "butter_bridge",
+              body: "I find this existence challenging",
+              created_at: "2020-07-09T20:11:00.000Z",
+              votes: 100,
+              article_img_url:
+                "https://images.pexels.com/photos/158651/news-newsletter-newspaper-information-158651.jpeg?w=700&h=700",
+            },
+          };
+          expect(body).toMatchObject(result);
+        });
+    });
+    it("200: returns article contains a count of articles comments", () => {
+      return request(app)
+        .get("/api/articles/1")
+        .expect(200)
+        .then(({ body }) => {
+          expect(body.article.comment_count).toBe("11");
+        });
+    });
+    it("200: returns article contains a count of articles comments when article has no comments", () => {
+      return request(app)
+        .get("/api/articles/2")
+        .expect(200)
+        .then(({ body }) => {
+          expect(body.article.comment_count).toBe("0");
+        });
+    });
+    it("400: responds with 'bad request' when invalid datatype is entered as an ID", () => {
+      return request(app)
+        .get("/api/articles/one")
+        .expect(400)
+        .then(({ body }) => {
+          expect(body.msg).toBe("bad request");
+        });
+    });
+    it("404: responds with 'not found' when a valid ID datatype is entered but article does not exist", () => {
+      return request(app)
+        .get("/api/articles/20")
+        .expect(404)
+        .then(({ body }) => {
+          expect(body.msg).toBe("not found");
         });
     });
   });
@@ -275,11 +315,11 @@ describe("Endpoint testing for NC News", () => {
   });
 
   describe("POST /api/articles/:article_id/comments - posts a comment (via an object with username and body keys) and returns the posted comment", () => {
-    it("200: successfully posts a comment to endpoint and recieves comment object back", () => {
+    it("201: successfully posts a comment to endpoint and recieves comment object back", () => {
       return request(app)
         .post("/api/articles/7/comments")
         .send({ username: "icellusedkars", body: "comment" })
-        .expect(200)
+        .expect(201)
         .then(({ body }) => {
           expect(body.comment).toHaveProperty("created_at");
           expect(body.comment).toMatchObject({
@@ -449,30 +489,6 @@ describe("Endpoint testing for NC News", () => {
         .expect(404)
         .then(({ body }) => {
           expect(body.msg).toBe("not found");
-        });
-    });
-  });
-
-  describe("GET /api/users - returns an array of user objects", () => {
-    it("200: returns all users (total 4), each object containing the users username, name and avatar_url", () => {
-      return request(app)
-        .get("/api/users")
-        .expect(200)
-        .then(({ body }) => {
-          expect(body.users.length).toBe(4);
-          body.users.forEach((user) => {
-            expect(user).toHaveProperty("username");
-            expect(user).toHaveProperty("name");
-            expect(user).toHaveProperty("avatar_url");
-          });
-        });
-    });
-    it("200: returns all users in alphabetical order by username", () => {
-      return request(app)
-        .get("/api/users")
-        .expect(200)
-        .then(({ body }) => {
-          expect(body.users).toBeSortedBy("username");
         });
     });
   });
