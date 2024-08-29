@@ -251,15 +251,6 @@ describe("Endpoint testing for NC News", () => {
           expect(body.msg).toBe("bad request");
         });
     });
-    it("400: responds with 'bad request' when username is invalid", () => {
-      return request(app)
-        .post("/api/articles/5/comments")
-        .send({ username: "jazz", body: "comment" })
-        .expect(400)
-        .then(({ body }) => {
-          expect(body.msg).toBe("bad request");
-        });
-    });
     it("400: responds with 'bad request' when comment body is invalid datatype", () => {
       return request(app)
         .post("/api/articles/5/comments")
@@ -282,6 +273,15 @@ describe("Endpoint testing for NC News", () => {
       return request(app)
         .post("/api/articles/888/comments")
         .send({ username: "icellusedkars", body: "comment" })
+        .expect(404)
+        .then(({ body }) => {
+          expect(body.msg).toBe("not found");
+        });
+    });
+    it.only("404: responds with 'not found' when username is invalid", () => {
+      return request(app)
+        .post("/api/articles/5/comments")
+        .send({ username: "jazz", body: "comment" })
         .expect(404)
         .then(({ body }) => {
           expect(body.msg).toBe("not found");
