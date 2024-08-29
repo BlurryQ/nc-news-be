@@ -99,6 +99,22 @@ describe("Endpoint testing for NC News", () => {
           expect(body).toMatchObject(result);
         });
     });
+    it("200: returns article contains a count of articles comments", () => {
+      return request(app)
+        .get("/api/articles/1")
+        .expect(200)
+        .then(({ body }) => {
+          expect(body.article.comment_count).toBe("11");
+        });
+    });
+    it("200: returns article contains a count of articles comments when article has no comments", () => {
+      return request(app)
+        .get("/api/articles/2")
+        .expect(200)
+        .then(({ body }) => {
+          expect(body.article.comment_count).toBe("0");
+        });
+    });
     it("400: responds with 'bad request' when invalid datatype is entered as an ID", () => {
       return request(app)
         .get("/api/articles/one")

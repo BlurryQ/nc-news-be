@@ -26,8 +26,10 @@ exports.selectArticles = (sort_by = "created_at", order = "desc") => {
 exports.selectArticleByID = (article_id) => {
   return db
     .query(
-      `select * from articles
-        where article_id = $1`,
+      `select articles.*, count(comments.article_id) as comment_count from articles
+      left join comments on articles.article_id = comments.article_id
+      where articles.article_id = $1
+      group by articles.article_id`,
       [article_id]
     )
     .then(({ rows }) => {
