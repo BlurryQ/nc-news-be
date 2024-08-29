@@ -9,7 +9,8 @@ const {
   patchArticleVoteCount,
   removeCommentByID,
   ifPsqlBadRequest,
-  ifPsqlItemNotFound,
+  ifPsqlNotFound,
+  ifCustomError,
   internalServerError,
 } = require("./controllers/index");
 const express = require("express");
@@ -37,7 +38,9 @@ app.delete("/api/comments/:comment_id", removeCommentByID);
 
 app.use(ifPsqlBadRequest);
 
-app.use(ifPsqlItemNotFound);
+app.use(ifPsqlNotFound);
+
+app.use(ifCustomError);
 
 app.use(internalServerError);
 
