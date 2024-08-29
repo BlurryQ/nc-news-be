@@ -1,11 +1,25 @@
 const seed = require("../db/seeds/seed");
 const data = require("../db/data/test-data");
 const db = require("../db/connection");
-const { checkIDExists } = require("../db/utility/checkIDExists");
+const {
+  getAllTopics,
+  checkIDExists,
+  checkColumnExistsInTable,
+} = require("../db/utility/index");
 
 beforeEach(() => seed(data));
 
 afterAll(() => db.end());
+
+describe("getAllTopics returns an array of topics", () => {
+  it("returns all topics (total 3)", () => {
+    const expectedResult = ["mitch", "cats", "paper"];
+    getAllTopics().then((result) => {
+      expect(result.length).toBe(3);
+      expect(result).toEqual(expectedResult);
+    });
+  });
+});
 
 describe("checkIDExists returns item object if found, or a rejected promise", () => {
   it("returns selected article object from article database when given a valid ID", () => {
