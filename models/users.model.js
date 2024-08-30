@@ -10,3 +10,15 @@ exports.selectUsers = () => {
       return rows;
     });
 };
+
+exports.selectUserByUsername = (username) => {
+  return db
+    .query(
+      `select * from users
+    where username = $1`,
+      [username]
+    )
+    .then(({ rows }) => {
+      return rows[0];
+    });
+};
