@@ -1,8 +1,13 @@
-const { getAllTopics, checkIDExists } = require("../db/utility");
+const {
+  getAllTopics,
+  checkIDExists,
+  isArticleDataValid,
+} = require("../utilities");
 const {
   selectArticles,
   selectArticleByID,
   selectArticleComments,
+  insertArticle,
   insertArticleComment,
   updateArticleVoteCount,
 } = require("../models/articles.models");
@@ -45,6 +50,25 @@ exports.getArticleComments = (request, response, next) => {
   Promise.all(unresolvedPromises)
     .then(([exists, comments]) => {
       response.status(200).send({ comments });
+    })
+    .catch((err) => next(err));
+};
+
+exports.postArticle = (request, response, next) => {
+  const newArticle = request.body;
+  if (!newArticle.article_img_url)
+    newArticle.article_img_url =
+      "https://images.pexels.com/photos/97050/pexels-photo-97050.jpeg?w=700&h=700";
+  const isArticleValid = isArticleDataValid(newArticle);
+  const unresolvedPromises = [insertArticle(newArticle)];
+  if (!isArticleValid)
+    unresolvedPromises.push(
+      Promise.reject({ status: 400, msg: "bad request" })
+    );
+  Promise.all(unresolvedPromises)
+    .then(([article]) => {
+      article.comment_count = 0;
+      response.status(201).send({ article });
     })
     .catch((err) => next(err));
 };

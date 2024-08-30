@@ -86,7 +86,7 @@ describe("Endpoint testing for NC News", () => {
     });
   });
 
-  describe("GET api/topics - returns an array of topic objects", () => {
+  describe("GET /api/topics - returns an array of topic objects", () => {
     it("200: returns all topics with both keys (slug & description) having string values", () => {
       return request(app)
         .get("/api/topics")
@@ -341,6 +341,144 @@ describe("Endpoint testing for NC News", () => {
     });
   });
 
+  describe("POST /api/articles - posts an article (via an object) and returns the posted article", () => {
+    it("201: successfully posts an article to endpoint and recieves article object back", () => {
+      const newArticle = {
+        author: "icellusedkars",
+        title: "Windy Road",
+        body: "A very interesting read full of twists and turns",
+        topic: "paper",
+        article_img_url:
+          "https://as1.ftcdn.net/v2/jpg/01/17/18/72/1000_F_117187243_oxda4jQ0sd1dTFhY7CSn6QMofcQKPqM3.jpg",
+      };
+      return request(app)
+        .post("/api/articles")
+        .send(newArticle)
+        .expect(201)
+        .then(({ body }) => {
+          expect(body.article).toHaveProperty("created_at");
+          expect(body.article).toMatchObject({
+            article_id: 14,
+            votes: 0,
+            comment_count: 0,
+            author: "icellusedkars",
+            title: "Windy Road",
+            body: "A very interesting read full of twists and turns",
+            topic: "paper",
+            article_img_url:
+              "https://as1.ftcdn.net/v2/jpg/01/17/18/72/1000_F_117187243_oxda4jQ0sd1dTFhY7CSn6QMofcQKPqM3.jpg",
+          });
+          return body;
+        })
+        .then((returnedarticle) => {
+          return request(app)
+            .get("/api/articles/14")
+            .expect(200)
+            .then(({ body }) => {
+              body.article.comment_count = Number(body.article.comment_count);
+              expect(body).toMatchObject(returnedarticle);
+            });
+        });
+    });
+    it("201: successfully posts an article to endpoint and uses default image url when none is given", () => {
+      const newArticle = {
+        author: "icellusedkars",
+        title: "Windy Road",
+        body: "A very interesting read full of twists and turns",
+        topic: "paper",
+      };
+      return request(app)
+        .post("/api/articles")
+        .send(newArticle)
+        .expect(201)
+        .then(({ body }) => {
+          expect(body.article).toHaveProperty("created_at");
+          expect(body.article).toMatchObject({
+            article_id: 14,
+            votes: 0,
+            comment_count: 0,
+            author: "icellusedkars",
+            title: "Windy Road",
+            body: "A very interesting read full of twists and turns",
+            topic: "paper",
+            article_img_url:
+              "https://images.pexels.com/photos/97050/pexels-photo-97050.jpeg?w=700&h=700",
+          });
+          return body;
+        })
+        .then((returnedarticle) => {
+          return request(app)
+            .get("/api/articles/14")
+            .expect(200)
+            .then(({ body }) => {
+              body.article.comment_count = Number(body.article.comment_count);
+              expect(body).toMatchObject(returnedarticle);
+            });
+        });
+    });
+
+    it("400: responds with 'bad request' when article body contains invalid datatypes", () => {
+      const badTitle = {
+        author: "icellusedkars",
+        title: [1, 2],
+        body: "A very interesting read full of twists and turns",
+        topic: "paper",
+      };
+      const badBody = {
+        author: "icellusedkars",
+        title: "Windy Road",
+        body: { a: 1, b: 2 },
+        topic: "paper",
+      };
+      const badTopic = {
+        author: "icellusedkars",
+        title: "Windy Road",
+        body: "A very interesting read full of twists and turns",
+        topic: null,
+      };
+      return request(app)
+        .post("/api/articles")
+        .send(badTitle)
+        .expect(400)
+        .then(({ body }) => {
+          expect(body.msg).toBe("bad request");
+        })
+        .then(() => {
+          return request(app)
+            .post("/api/articles")
+            .send(badBody)
+            .expect(400)
+            .then(({ body }) => {
+              expect(body.msg).toBe("bad request");
+            });
+        })
+        .then(() => {
+          return request(app)
+            .post("/api/articles")
+            .send(badTopic)
+            .expect(400)
+            .then(({ body }) => {
+              expect(body.msg).toBe("bad request");
+            });
+        });
+    });
+    it("404: responds with 'not found' when username is invalid", () => {
+      const newArticle = {
+        author: "jazz",
+        title: "Windy Road",
+        body: "A very interesting read full of twists and turns",
+        topic: "paper",
+      };
+      return request(app)
+        .post("/api/articles")
+        .send(newArticle)
+        .expect(404)
+        .then(({ body }) => {
+          expect(body.msg).toBe("not found");
+        });
+    });
+  });
+
   describe("POST /api/articles/:article_id/comments - posts a comment (via an object with username and body keys) and returns the posted comment", () => {
     it("201: successfully posts a comment to endpoint and recieves comment object back", () => {
       return request(app)
@@ -520,7 +658,7 @@ describe("Endpoint testing for NC News", () => {
     });
   });
 
-  describe.only("PATCH /api/comments/:comment_id - adjusts the specified comments vote count (via an object with inc_votes key) and returns the updated comment", () => {
+  describe("PATCH /api/comments/:comment_id - adjusts the specified comments vote count (via an object with inc_votes key) and returns the updated comment", () => {
     it("200: successfully increases the comments vote count and recieves comment object back", () => {
       const updatedComment = {
         comment: {
