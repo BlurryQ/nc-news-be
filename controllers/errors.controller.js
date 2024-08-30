@@ -1,9 +1,5 @@
-exports.ifPsqlBadRequest = (err, request, response, next) => {
+exports.ifPsqlError = (err, request, response, next) => {
   if (err.code === "22P02") response.status(400).send({ msg: "bad request" });
-  next(err);
-};
-
-exports.ifPsqlNotFound = (err, request, response, next) => {
   if (err.code === "23503" || err.code === "42703")
     response.status(404).send({ msg: "not found" });
   next(err);

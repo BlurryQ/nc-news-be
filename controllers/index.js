@@ -15,8 +15,7 @@ const {
 const { removeCommentByID } = require("./comments.controller");
 
 const {
-  ifPsqlBadRequest,
-  ifPsqlNotFound,
+  ifPsqlError,
   ifCustomError,
   internalServerError,
 } = require("./errors.controller");
@@ -31,8 +30,7 @@ module.exports = {
   postArticleComment,
   patchArticleVoteCount,
   removeCommentByID,
-  ifPsqlBadRequest,
-  ifPsqlNotFound,
+  ifPsqlError,
   ifCustomError,
   internalServerError,
 };
