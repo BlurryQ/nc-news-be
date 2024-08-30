@@ -12,7 +12,10 @@ const {
   patchArticleVoteCount,
 } = require("./articles.controller");
 
-const { removeCommentByID } = require("./comments.controller");
+const {
+  removeCommentByID,
+  patchCommentVoteCount,
+} = require("./comments.controller");
 
 const {
   ifPsqlError,
@@ -31,6 +34,7 @@ module.exports = {
   postArticleComment,
   patchArticleVoteCount,
   removeCommentByID,
+  patchCommentVoteCount,
   ifPsqlError,
   ifCustomError,
   internalServerError,
