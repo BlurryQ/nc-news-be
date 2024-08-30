@@ -1,6 +1,6 @@
 const { getAPIEndpoints } = require("./api.controller");
 
-const { getUsers } = require("./users.controllers");
+const { getUsers, getUserByUsername } = require("./users.controllers");
 
 const { getTopics } = require("./topics.controllers");
 
@@ -23,6 +23,7 @@ const {
 module.exports = {
   getAPIEndpoints,
   getUsers,
+  getUserByUsername,
   getTopics,
   getArticles,
   getArticleByID,

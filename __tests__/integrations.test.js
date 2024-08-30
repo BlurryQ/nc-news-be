@@ -59,6 +59,33 @@ describe("Endpoint testing for NC News", () => {
     });
   });
 
+  describe.only("GET /api/users/:username - returns the specified user object", () => {
+    it("returns the specified user, containing their username, name and avatar_url", () => {
+      return request(app)
+        .get("/api/users/icellusedkars")
+        .expect(200)
+        .then(({ body }) => {
+          const result = {
+            user: {
+              username: "icellusedkars",
+              name: "sam",
+              avatar_url:
+                "https://avatars2.githubusercontent.com/u/24604688?s=460&v=4",
+            },
+          };
+          expect(body).toEqual(result);
+        });
+    });
+    it("404: responds with 'not found' when a username is entered but user does not exist", () => {
+      return request(app)
+        .get("/api/users/jazz")
+        .expect(404)
+        .then(({ body }) => {
+          expect(body.msg).toBe("not found");
+        });
+    });
+  });
+
   describe("GET api/topics - returns an array of topic objects", () => {
     it("200: returns all topics with both keys (slug & description) having string values", () => {
       return request(app)
