@@ -60,6 +60,26 @@ exports.selectArticleComments = (article_id) => {
     });
 };
 
+exports.insertArticle = (newArticle) => {
+  const formattedQuery = format(
+    `insert into articles (
+    author, title, body, topic, article_img_url)
+    values
+    (%L)
+    returning *`,
+    [
+      newArticle.author,
+      newArticle.title,
+      newArticle.body,
+      newArticle.topic,
+      newArticle.article_img_url,
+    ]
+  );
+  return db.query(formattedQuery).then(({ rows }) => {
+    return rows[0];
+  });
+};
+
 exports.insertArticleComment = (article_id, username, comment) => {
   const formattedQuery = format(
     `insert into comments (

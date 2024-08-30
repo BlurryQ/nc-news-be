@@ -4,8 +4,8 @@ const db = require("../db/connection");
 const {
   getAllTopics,
   checkIDExists,
-  checkColumnExistsInTable,
-} = require("../db/utility/index");
+  isArticleDataValid,
+} = require("../utilities");
 
 beforeEach(() => seed(data));
 
@@ -76,5 +76,46 @@ describe("checkIDExists returns item object if found, or a rejected promise", ()
       status: 404,
       msg: "not found",
     });
+  });
+});
+
+describe("isArticleDataValid checks if author, title, body and topic are valid and returns a boolean", () => {
+  it("returns true when given an article with valid properties", () => {
+    const article = {
+      author: "icellusedkars",
+      title: "Windy Road",
+      body: "A very interesting read full of twists and turns",
+      topic: "paper",
+    };
+    expect(isArticleDataValid(article)).toBe(true);
+  });
+  it("returns false when given an article with invalid properties", () => {
+    const badAuthor = {
+      author: [1, 2],
+      title: "Windy Road",
+      body: "A very interesting read full of twists and turns",
+      topic: "paper",
+    };
+    const badtitle = {
+      author: "icellusedkars",
+      title: 9874,
+      body: "A very interesting read full of twists and turns",
+      topic: "paper",
+    };
+    const badBody = {
+      author: "icellusedkars",
+      title: "Windy Road",
+      body: { a: 1, b: 2 },
+      topic: "paper",
+    };
+    const badTopic = {
+      author: "icellusedkars",
+      title: "Windy Road",
+      body: "A very interesting read full of twists and turns",
+    };
+    expect(isArticleDataValid(badAuthor)).toBe(false);
+    expect(isArticleDataValid(badtitle)).toBe(false);
+    expect(isArticleDataValid(badBody)).toBe(false);
+    expect(isArticleDataValid(badTopic)).toBe(false);
   });
 });

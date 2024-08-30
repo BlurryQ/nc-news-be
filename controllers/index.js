@@ -8,6 +8,7 @@ const {
   getArticles,
   getArticleByID,
   getArticleComments,
+  postArticle,
   postArticleComment,
   patchArticleVoteCount,
 } = require("./articles.controller");
@@ -31,6 +32,7 @@ module.exports = {
   getArticles,
   getArticleByID,
   getArticleComments,
+  postArticle,
   postArticleComment,
   patchArticleVoteCount,
   removeCommentByID,

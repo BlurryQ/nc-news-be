@@ -2,7 +2,7 @@ const {
   deleteCommentByID,
   updateCommentVoteCount,
 } = require("../models/comments.model");
-const { checkIDExists } = require("../db/utility/checkIDExists");
+const { checkIDExists } = require("../utilities");
 
 exports.removeCommentByID = (request, response, next) => {
   const { comment_id } = request.params;

@@ -1,6 +1,6 @@
 const { response } = require("../app");
 const { selectUsers, selectUserByUsername } = require("../models/users.model");
-const { checkIDExists } = require("../db/utility/");
+const { checkIDExists } = require("../utilities");
 
 exports.getUsers = (request, response) => {
   selectUsers().then((users) => {
