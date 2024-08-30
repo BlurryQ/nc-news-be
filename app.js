@@ -1,44 +1,17 @@
 const {
-  getAPIEndpoints,
-  getUsers,
-  getTopics,
-  getArticles,
-  getArticleByID,
-  getArticleComments,
-  postArticleComment,
-  patchArticleVoteCount,
-  removeCommentByID,
-  ifPsqlBadRequest,
-  ifPsqlNotFound,
+  ifPsqlError,
   ifCustomError,
   internalServerError,
-} = require("./controllers/index");
+} = require("./controllers/");
 const express = require("express");
+const { apiRouter } = require("./routers/api-router");
 
 const app = express();
 app.use(express.json());
 
-app.get("/api", getAPIEndpoints);
+app.use("/api", apiRouter);
 
-app.get("/api/users", getUsers);
-
-app.get("/api/topics", getTopics);
-
-app.get("/api/articles", getArticles);
-
-app.get("/api/articles/:article_id", getArticleByID);
-
-app.get("/api/articles/:article_id/comments", getArticleComments);
-
-app.post("/api/articles/:article_id/comments", postArticleComment);
-
-app.patch("/api/articles/:article_id", patchArticleVoteCount);
-
-app.delete("/api/comments/:comment_id", removeCommentByID);
-
-app.use(ifPsqlBadRequest);
-
-app.use(ifPsqlNotFound);
+app.use(ifPsqlError);
 
 app.use(ifCustomError);
 
