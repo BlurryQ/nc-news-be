@@ -59,7 +59,7 @@ describe("Endpoint testing for NC News", () => {
     });
   });
 
-  describe.only("GET /api/users/:username - returns the specified user object", () => {
+  describe("GET /api/users/:username - returns the specified user object", () => {
     it("returns the specified user, containing their username, name and avatar_url", () => {
       return request(app)
         .get("/api/users/icellusedkars")
@@ -513,6 +513,72 @@ describe("Endpoint testing for NC News", () => {
     it("404: responds with 'not found' when comment ID is valid, but comment does not exist", () => {
       return request(app)
         .delete("/api/comments/123")
+        .expect(404)
+        .then(({ body }) => {
+          expect(body.msg).toBe("not found");
+        });
+    });
+  });
+
+  describe.only("PATCH /api/comments/:comment_id - adjusts the specified comments vote count (via an object with inc_votes key) and returns the updated comment", () => {
+    it("200: successfully increases the comments vote count and recieves comment object back", () => {
+      const updatedComment = {
+        comment: {
+          body: "Oh, I've got compassion running out of my nose, pal! I'm the Sultan of Sentiment!",
+          votes: 20,
+          author: "butter_bridge",
+          article_id: 9,
+        },
+      };
+      return request(app)
+        .patch("/api/comments/1")
+        .send({ inc_votes: 4 })
+        .expect(200)
+        .then(({ body }) => {
+          expect(body.comment).toHaveProperty("created_at");
+          expect(body).toMatchObject(updatedComment);
+        });
+    });
+    it("200: successfully decreases the article vote count and recieves article object back", () => {
+      const updatedComment = {
+        comment: {
+          body: "Oh, I've got compassion running out of my nose, pal! I'm the Sultan of Sentiment!",
+          votes: 6,
+          author: "butter_bridge",
+          article_id: 9,
+        },
+      };
+      return request(app)
+        .patch("/api/comments/1")
+        .send({ inc_votes: -10 })
+        .expect(200)
+        .then(({ body }) => {
+          expect(body.comment).toHaveProperty("created_at");
+          expect(body).toMatchObject(updatedComment);
+        });
+    });
+    it("400: responds with 'bad request' when article ID has invalid datatype", () => {
+      return request(app)
+        .patch("/api/comments/one")
+        .send({ inc_votes: 1 })
+        .expect(400)
+        .then(({ body }) => {
+          expect(body.msg).toBe("bad request");
+        });
+    });
+    it("400: responds with 'bad request' when inc_votes is invalid datatype", () => {
+      return request(app)
+        .patch("/api/comments/1")
+        .send({ inc_votes: "ten" })
+        .expect(400)
+        .then(({ body }) => {
+          expect(body.msg).toBe("bad request");
+        });
+    });
+    it("404: responds with 'not found' when article ID is valid, but article does not exist", () => {
+      return request(app)
+        .patch("/api/comments/200")
+        .send({ inc_votes: 100 })
         .expect(404)
         .then(({ body }) => {
           expect(body.msg).toBe("not found");

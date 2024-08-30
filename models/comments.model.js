@@ -12,3 +12,17 @@ exports.deleteCommentByID = (commentID) => {
       return rows[0];
     });
 };
+
+exports.updateCommentVoteCount = (commentID, votesAdjust) => {
+  return db
+    .query(
+      `update comments
+        set votes = votes + $1
+        where comment_id = $2
+        returning *`,
+      [votesAdjust, commentID]
+    )
+    .then(({ rows }) => {
+      return rows[0];
+    });
+};
