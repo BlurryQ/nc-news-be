@@ -199,6 +199,100 @@ describe("Endpoint testing for NC News", () => {
           expect(body.articles.length).toBe(1);
         });
     });
+    //check descriptions from here
+    it("200: accepts pagination and returns the appropriate results when limited to 3", () => {
+      const result = {
+        articles: [
+          {
+            author: "icellusedkars",
+            title: "Eight pug gifs that remind me of mitch",
+            article_id: 3,
+            topic: "mitch",
+            created_at: "2020-11-03T09:12:00.000Z",
+            votes: 0,
+            article_img_url:
+              "https://images.pexels.com/photos/158651/news-newsletter-newspaper-information-158651.jpeg?w=700&h=700",
+            comment_count: "2",
+          },
+          {
+            author: "icellusedkars",
+            title: "A",
+            article_id: 6,
+            topic: "mitch",
+            created_at: "2020-10-18T01:00:00.000Z",
+            votes: 0,
+            article_img_url:
+              "https://images.pexels.com/photos/158651/news-newsletter-newspaper-information-158651.jpeg?w=700&h=700",
+            comment_count: "1",
+          },
+          {
+            author: "icellusedkars",
+            title: "Sony Vaio; or, The Laptop",
+            article_id: 2,
+            topic: "mitch",
+            created_at: "2020-10-16T05:03:00.000Z",
+            votes: 0,
+            article_img_url:
+              "https://images.pexels.com/photos/158651/news-newsletter-newspaper-information-158651.jpeg?w=700&h=700",
+            comment_count: "0",
+          },
+        ],
+      };
+      return request(app)
+        .get("/api/articles?limit=3")
+        .expect(200)
+        .then(({ body }) => {
+          expect(body.articles.length).toBe(3);
+          expect(body).toEqual(result);
+        });
+    });
+    it("200: accepts pagination and returns the appropriate results when limited to 3 on page 2", () => {
+      const result = {
+        articles: [
+          {
+            author: "butter_bridge",
+            title: "Moustache",
+            article_id: 12,
+            topic: "mitch",
+            created_at: "2020-10-11T11:24:00.000Z",
+            votes: 0,
+            article_img_url:
+              "https://images.pexels.com/photos/158651/news-newsletter-newspaper-information-158651.jpeg?w=700&h=700",
+            comment_count: "0",
+          },
+          {
+            author: "butter_bridge",
+            title: "Another article about Mitch",
+            article_id: 13,
+            topic: "mitch",
+            created_at: "2020-10-11T11:24:00.000Z",
+            votes: 0,
+            article_img_url:
+              "https://images.pexels.com/photos/158651/news-newsletter-newspaper-information-158651.jpeg?w=700&h=700",
+            comment_count: "0",
+          },
+          {
+            author: "rogersop",
+            title: "UNCOVERED: catspiracy to bring down democracy",
+            article_id: 5,
+            topic: "cats",
+            created_at: "2020-08-03T13:14:00.000Z",
+            votes: 0,
+            article_img_url:
+              "https://images.pexels.com/photos/158651/news-newsletter-newspaper-information-158651.jpeg?w=700&h=700",
+            comment_count: "2",
+          },
+        ],
+      };
+      return request(app)
+        .get("/api/articles?page=2&limit=3")
+        .expect(200)
+        .then(({ body }) => {
+          expect(body.articles.length).toBe(3);
+          expect(body).toEqual(result);
+        });
+    });
+    //add more tests here
     it("400: responds with 'bad request' when order is invalid or doesn't exist", () => {
       return request(app)
         .get("/api/articles?sort_by=title&order=5")

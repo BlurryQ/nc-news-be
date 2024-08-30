@@ -13,16 +13,29 @@ const {
 } = require("../models/articles.models");
 
 exports.getArticles = (request, response, next) => {
-  const { sort_by, order, topic } = request.query;
+  const { sort_by, order, topic, page, limit } = request.query;
   const unresolvedPromises = [
     getAllTopics(),
     selectArticles(sort_by, order, topic),
+    page,
+    limit,
   ];
 
   Promise.all(unresolvedPromises)
-    .then(([topics, articles]) => {
+    .then(([topics, articles, page = 1, limit]) => {
       if (topic !== undefined && !topics.includes(topic))
         return Promise.reject({ status: 404, msg: "not found" });
+
+      let limitedArticles = [];
+      if (limit) {
+        let i = 0;
+        if (page) i = page * limit - limit;
+        for (; i < page * limit; i++) {
+          limitedArticles.push(articles[i]);
+        }
+        response.status(200).send({ articles: limitedArticles });
+      }
+
       response.status(200).send({ articles });
     })
     .catch((err) => next(err));
