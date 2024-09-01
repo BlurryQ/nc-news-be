@@ -21,15 +21,15 @@ exports.patchCommentVoteCount = (request, response, next) => {
   const { comment_id } = request.params;
   const { inc_votes } = request.body;
   const unresolvedPromises = [
-    checkIDExists("comments", "comment_id", comment_id),
     updateCommentVoteCount(comment_id, inc_votes),
+    checkIDExists("comments", "comment_id", comment_id),
   ];
   if (typeof inc_votes !== "number" || isNaN(inc_votes))
     unresolvedPromises.push(
       Promise.reject({ status: 400, msg: "bad request" })
     );
   Promise.all(unresolvedPromises)
-    .then(([exists, comment]) => {
+    .then(([comment]) => {
       response.status(200).send({ comment });
     })
     .catch((err) => next(err));
