@@ -11,11 +11,11 @@ exports.getUsers = (request, response) => {
 exports.getUserByUsername = (request, response, next) => {
   const { username } = request.params;
   const unresolvedPromises = [
-    checkIDExists("users", "username", username),
     selectUserByUsername(username),
+    checkIDExists("users", "username", username),
   ];
   Promise.all(unresolvedPromises)
-    .then(([exists, user]) => {
+    .then(([user]) => {
       response.status(200).send({ user });
     })
     .catch((err) => next(err));
