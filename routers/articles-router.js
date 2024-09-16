@@ -16,7 +16,7 @@ articlesRouter.get("/:article_id/comments", getArticleComments);
 
 articlesRouter.post("/", postArticle);
 
-articlesRouter.post("/:article_id/comments", postArticleComment);
+articlesRouter.post("/:article_id/comment", postArticleComment);
 
 articlesRouter.patch("/:article_id", patchArticleVoteCount);
 

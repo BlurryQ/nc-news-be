@@ -801,10 +801,10 @@ describe("Endpoint testing for NC News", () => {
     });
   });
 
-  describe("POST /api/articles/:article_id/comments - posts a comment (via an object with username and body keys) and returns the posted comment", () => {
+  describe("POST /api/articles/:article_id/comment - posts a comment (via an object with username and body keys) and returns the posted comment", () => {
     it("201: successfully posts a comment to endpoint and recieves comment object back", () => {
       return request(app)
-        .post("/api/articles/7/comments")
+        .post("/api/articles/7/comment")
         .send({ username: "icellusedkars", body: "comment" })
         .expect(201)
         .then(({ body }) => {
@@ -829,7 +829,7 @@ describe("Endpoint testing for NC News", () => {
     });
     it("400: responds with 'bad request' when article ID has invalid datatype", () => {
       return request(app)
-        .post("/api/articles/one/comments")
+        .post("/api/articles/one/comment")
         .send({ username: "icellusedkars", body: "comment" })
         .expect(400)
         .then(({ body }) => {
@@ -838,7 +838,7 @@ describe("Endpoint testing for NC News", () => {
     });
     it("400: responds with 'bad request' when comment body is invalid datatype", () => {
       return request(app)
-        .post("/api/articles/5/comments")
+        .post("/api/articles/5/comment")
         .send({ username: "icellusedkars", body: [1, 2] })
         .expect(400)
         .then(({ body }) => {
@@ -846,7 +846,7 @@ describe("Endpoint testing for NC News", () => {
         })
         .then(() => {
           return request(app)
-            .post("/api/articles/5/comments")
+            .post("/api/articles/5/comment")
             .send({ username: "icellusedkars", body: { a: 1, b: 2 } })
             .expect(400)
             .then(({ body }) => {
@@ -856,7 +856,7 @@ describe("Endpoint testing for NC News", () => {
     });
     it("404: responds with 'not found' when article ID is valid, but article does not exist", () => {
       return request(app)
-        .post("/api/articles/888/comments")
+        .post("/api/articles/888/comment")
         .send({ username: "icellusedkars", body: "comment" })
         .expect(404)
         .then(({ body }) => {
@@ -865,7 +865,7 @@ describe("Endpoint testing for NC News", () => {
     });
     it("404: responds with 'not found' when username is invalid", () => {
       return request(app)
-        .post("/api/articles/5/comments")
+        .post("/api/articles/5/comment")
         .send({ username: "jazz", body: "comment" })
         .expect(404)
         .then(({ body }) => {
