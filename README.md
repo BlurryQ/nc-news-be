@@ -2,7 +2,7 @@
 
 This portfolio project was created as part of a Digital Skills Bootcamp in Software Engineering provided by [Northcoders](https://northcoders.com/).
 
-**Hosted API** [NC News](https://nc-news-lbn1.onrender.com/api).
+**Hosted API** [NC News](https://nc-news-lbn1.onrender.com/api)
 
 ## Summary
 
@@ -10,7 +10,7 @@ This project showcases RESTful API's designed to manage articles and comments, p
 
 ## Requirements
 
-**Node:** v20.12.2 +
+**Node:** v20.12.2 + <br>
 **pSQL:** 14.13 +
 
 ## Setup
@@ -26,7 +26,7 @@ First you need to fork this repo to your GitHub account by clicking fork button 
 The next step is cloning this to your local device using the follwoing command, changing the "your-username" to your GitHub username:
 
 ```
-git clone github.com/your-username/nc-news
+git clone github.com/your-username/nc-news-be
 ```
 
 ### 3. Creating your Enviroment
