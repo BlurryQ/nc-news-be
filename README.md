@@ -6,6 +6,8 @@ This portfolio project was created as part of a Digital Skills Bootcamp in Softw
 
 ## Summary
 
+![API Endpoints Screenshot](./demo.png)
+
 This project showcases RESTful API's designed to manage articles and comments, providing users with the ability to create, read, update, and delete (CRUD) articles and comments.
 
 ## Requirements
